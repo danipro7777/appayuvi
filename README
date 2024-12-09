@@ -1,0 +1,15 @@
+PASOS PARA INICIAR EL PROYECTO
+
+```bash
+npm install
+npx expo start
+```
+
+No es necesario tener instalado expo-cli
+
+```bash
+npm install dotenv
+npm install expo-secure-store
+npm install axios
+npm install expo-router
+```
