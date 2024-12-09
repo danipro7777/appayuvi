@@ -24,7 +24,7 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>¡Bienvenido! 🎉</Text>
-      <Button title="Cerrar sesión" onPress={logout} />
+      <Button title="Iniciar sesión" onPress={logout} />
     </View>
   );
 }
