@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, Image, StyleSheet, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
 import api from '../api'; // Cliente Axios
 import * as SecureStore from 'expo-secure-store'; // Manejo de token seguro
+import { useRouter } from 'expo-router'; // Para navegar entre pantallas
 
 export default function Dashboard() {
+  const router = useRouter(); // Hook para navegación
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,7 +13,6 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        // Obtener el userId desde SecureStore
         const userId = await SecureStore.getItemAsync('userId');
         if (!userId) {
           setError('No se ha iniciado sesión correctamente.');
@@ -19,17 +20,12 @@ export default function Dashboard() {
           return;
         }
 
-        // Hacer la petición al backend para obtener usuarios activos
         const response = await api.get('/usuarios/activos');
-        console.log('Usuarios activos desde la API:', response.data); // Debug
-
-        // Buscar el usuario logueado en los datos retornados
         const loggedUser = response.data.find(user => user.idUsuario === parseInt(userId));
 
         if (loggedUser) {
           setUserData(loggedUser);
 
-          // Verificar si el usuario debe cambiar su contraseña
           if (loggedUser.changedPassword === 0) {
             Alert.alert(
               'Cambio de Contraseña',
@@ -77,16 +73,12 @@ export default function Dashboard() {
 
   return (
     <View style={styles.container}>
-      {/* Imagen de perfil */}
       <Image source={require('../assets/icon.png')} style={styles.profileImage} />
-      
-      {/* Nombre y domicilio */}
       <Text style={styles.name}>{userData.persona.nombre}</Text>
       <Text style={styles.location}>
         {userData.persona.domicilio || 'Dirección no disponible'}
       </Text>
 
-      {/* Información adicional */}
       <View style={styles.infoContainer}>
         <Text style={styles.infoText}>
           <Text style={styles.label}>Usuario: </Text>{userData.usuario}
@@ -102,6 +94,14 @@ export default function Dashboard() {
           {new Date(userData.persona.createdAt).toLocaleDateString()}
         </Text>
       </View>
+
+      {/* Botón para cambiar contraseña */}
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => router.push('/change-password')} // Navegar a la pantalla de cambiar contraseña
+      >
+        <Text style={styles.buttonText}>Cambiar Contraseña</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -154,6 +154,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 5,
+    marginBottom: 16,
   },
   infoText: {
     fontSize: 16,
@@ -161,6 +162,18 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   label: {
+    fontWeight: 'bold',
+  },
+  button: {
+    backgroundColor: '#007AC3',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    width: '90%',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
     fontWeight: 'bold',
   },
 });
